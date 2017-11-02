@@ -2,9 +2,22 @@
 
 set -euo pipefail
 
+set -x
+
+echo "--- DEBUGGING"
+pwd
+ls -la
+whoami
+
 INSTALL_PATH=$PWD/cassandra make install
 export PATH=$PWD/cassandra:$PATH
 
 VERSION=$(cat VERSION)
 
-echo ":unicorn_face: Using Cassandra version $VERSION"
+echo ":bat: Using Cassandra version $VERSION"
+
+# required for downloading aws:kms encrypted objects from s3
+aws configure set s3.signature_version s3v4
+
+export BUILDKITE_SECRETS_BUCKET=cozero-$PLATFORM-buildkite-secrets
+export BUILDKITE_ARTIFACTS_BUCKET=cozero-$PLATFORM-buildkite-artifacts

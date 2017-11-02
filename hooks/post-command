@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -euo pipefail
+
+if [ $BUILDKITE_COMMAND_EXIT_STATUS -ne 0 ]; then
+  echo "--- :bat::aws: clean up containers :rage1::rage2::rage3::rage4:"
+  # aws_ecr_cleanup
+fi
