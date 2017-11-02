@@ -6,7 +6,7 @@
 ```
 steps:
   - plugins:
-    github.com/cozero/cassandra-buildkite-plugin#v0.0.1
+    github.com/cozero/cassandra-buildkite-plugin#v0.0.1:
 ```
 
 ## Licence

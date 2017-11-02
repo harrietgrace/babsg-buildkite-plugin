@@ -8,6 +8,8 @@ echo "--- DEBUGGING"
 pwd
 ls -la
 whoami
+env
+echo $PATH
 
 INSTALL_PATH=$PWD/cassandra make install
 export PATH=$PWD/cassandra:$PATH
