@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -euo pipefail
+
+INSTALL_PATH=$PWD/cassandra make install
+export PATH=$PWD/cassandra:$PATH
+
+VERSION=$(cat VERSION)
+
+echo ":unicorn_face: Using Cassandra version $VERSION"

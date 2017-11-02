@@ -1,0 +1,6 @@
+{
+  "name": "cassandra",
+  "description": "A collection of bash helpers designed to streamline CI (especially on AWS)",
+  "author": "@cozero",
+  "public": true
+}
