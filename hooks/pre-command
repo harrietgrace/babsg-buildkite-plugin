@@ -2,21 +2,22 @@
 
 set -euo pipefail
 
-set -x
+set +x
 
-echo "--- DEBUGGING"
-pwd
-ls -la
-whoami
-env
-echo $PATH
+CASS_DIR=$(echo $BUILDKITE_PLUGINS |
+               jq -r '.[] | keys[] | match(".*cass.*").string' |
+               sed -e 's|[./#]|-|g')
 
-INSTALL_PATH=$PWD/cassandra make install
-export PATH=$PWD/cassandra:$PATH
+cd $BUILDKITE_PLUGINS_PATH/$CASS_DIR
 
-VERSION=$(cat VERSION)
+INSTALL_PATH=${BUILDKITE_PLUGIN_CASSANDRA_INSTALL_PATH:-"/var/cass/bin"} make install
+export PATH=$INSTALL_PATH:$PATH
 
-echo ":bat: Using Cassandra version $VERSION"
+CASS_VERSION=$(cat VERSION)
+
+echo ":bat: Using Cass version $CASS_VERSION"
+
+cd $BUILDKITE_BUILD_CHECKOUT_PATH
 
 # required for downloading aws:kms encrypted objects from s3
 aws configure set s3.signature_version s3v4
