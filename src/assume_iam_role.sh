@@ -4,18 +4,19 @@
 
 # RTFM
 usage() {
-  echo -e ""
-  echo -e "Usage: $(assume_iam_role arn)"
-  echo -e ""
-  echo -e "Options:"
-  echo -e "\\t-h display this message"
-  echo -e "\\t-u unassume the role"
-  echo -e "\\t--role=<str> the ARN of the role to assume"
+  cat <<RTFM
+
+Usage: \$(assume_iam_role arn)
+       note: command subsitution is required since you are setting ENVs
+Options:
+  -h display this message
+  -u unassume the role
+  --role=<str> the ARN of the role to assume
+RTFM
 }
 
 main() {
   case $MODE in
-
     usage)    usage;    exit;;
     unassume) unassume; exit;;
     *)        assume  ; exit;;
@@ -56,7 +57,7 @@ while [ "$1" != "" ]; do
     # config stuff
     --role)      ROLE=$VALUE;;
     # catch borked options
-    *)           echo "BORK BORK BORK"; usage; exit 1;;
+    *)           echo "BORK BORK BORK"; MODE=usage; exit 1;;
   esac
   shift
 done

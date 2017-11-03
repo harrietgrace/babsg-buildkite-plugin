@@ -7,23 +7,25 @@
 
 # RTFM
 usage() {
-  echo -e ""
-  echo -e "Usage: elastic_beanstalk_environment_status [options]"
-  echo -e ""
-  echo -e "If no options are specified, outputs a human-readable environment status"
-  echo -e ""
-  echo -e "Options:"
-  echo -e "\\t-h display this message"
-  echo -e "\\t-c output the environment color"
-  echo -e "\\t-s output the environment status"
-  echo -e "\\t-v output the environment version"
-  echo -e "\\t-G spam aws until the environment goes green"
-  echo -e "\\t-R spam aws until the environment is ready"
-  echo -e "\\t--name=<str> the name of the elastic beanstalk environment"
-  echo -e "\\t--region=<str> the AWS region"
-  echo -e "\\t--timeout=<int> time to wait before giving up on spamming AWS"
-  echo -e "\\t--verify=<str> verify that the given version is in fact running"
-  echo -e "\\t    (defaults to \$PLATFORM-\$APPLICATION-\$RUNTIME_ENV)"
+  cat <<RTFM
+
+Usage: elastic_beanstalk_environment_status [options]
+
+If no options are specified, outputs a human-readable environment status
+
+Options:
+  -h display this message
+  -c output the environment color
+  -s output the environment status
+  -v output the environment version
+  -G spam aws until the environment goes green
+  -R spam aws until the environment is ready
+  --name=<str> the name of the elastic beanstalk environment
+  --region=<str> the AWS region
+  --timeout=<int> time to wait before giving up on spamming AWS
+  --verify=<str> verify that the given version is in fact running
+      (defaults to \$PLATFORM-\$APPLICATION-\$RUNTIME_ENV)
+RTFM
 }
 
 # Set defaults for optional variables

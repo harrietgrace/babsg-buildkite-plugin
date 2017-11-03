@@ -12,7 +12,9 @@ Usage: babsg command [options]
 
 Commands:
 
-  help (displays this message)
+  help    displays this message
+  build   builds the Dockerfile and pushes to ECR
+  rubocop runs rubocop in your docker container
 
 RTFM
 }
@@ -20,7 +22,7 @@ RTFM
 build() {
   set -euo pipefail
 
-  echo "--- :docker: Building container :construction_worker:"
+  echo "--- :docker: building container :construction_worker:"
   docker build -t app .
 
   echo "--- :docker: tag and push to :aws:"
@@ -28,33 +30,61 @@ build() {
   docker push $BABSG_DOCKER_URL:$BUILD_VERSION
 }
 
-# enfore single mode
-esm() {
-  if [[ -n $MODE ]]; then echo "BORK BORK BORK BORK"; exit 1; fi
+pytest() {
+  set -euo pipefail
+
+  echo "--- :docker::snake: testing :hurtrealbad:"
+  docker run --rm --entrypoint /bin/bash \
+    $BABSG_DOCKER_URL:$BUILD_VERSION \
+    -c python -m unittest discover -s ./tests -p '*_test.py'
+
+  echo '👌 Tests passed! :godmode:'
 }
 
-main() {
-  case $MODE in
+rspec() {
+  set -euo pipefail
 
-    build)    build;    exit;;
-    usage)    usage;    exit;;
-    *)        usage;    exit;;
-  esac
+  echo "--- :docker::rspec: testing :hurtrealbad:"
+  docker run --rm --entrypoint /bin/bash \
+    $BABSG_DOCKER_URL:$BUILD_VERSION \
+    -c 'bundle exec rake spec'
+
+  echo '👌 Tests passed! :godmode:'
 }
 
-# we love arg parsing
-unset MODE
+rubocop() {
+  set -euo pipefail
+
+  echo "--- :docker::rubocop: linting :face_punch:"
+  docker run --rm --entrypoint /bin/bash \
+    $BABSG_DOCKER_URL:$BUILD_VERSION \
+    -c 'bundle exec rubocop'
+
+  echo '👌 Looks good to me! :godmode:'
+}
+
+# first arg is the command
+unset COMMAND
+case $1 in
+  build)              COMMAND=build;;
+  pytest)             COMMAND=pytest;;
+  rspec)              COMMAND=rspec;;
+  rubocop)            COMMAND=rubocop;;
+  help | -h | --help) COMMAND=usage;;
+  # catch borked commands
+  *) echo "BORK BORK BORK"; usage; exit 1;;
+esac
+shift
+
+# parse remaining args
 while [ "$1" != "" ]; do
   KEY=$(echo "$1" | awk -F= '{print $1}')
   VALUE=$(echo "$1" | awk -F= '{print $2}')
   case $KEY in
-    # commands
-    build)              esm; MODE=build;;
-    help | -h | --help) esm; MODE=usage;;
     # catch borked options
     *)           echo "BORK BORK BORK"; usage; exit 1;;
   esac
   shift
 done
 
-main
+$COMMAND

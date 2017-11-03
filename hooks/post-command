@@ -8,6 +8,6 @@ if [ $BUILDKITE_COMMAND_EXIT_STATUS -ne 0 ]; then
   echo "^^^ +++"
   if [ ${BUILDKITE_PLUGIN_BABSG_ECR_CLEANUP:-false} == "true" ]; then
     echo "--- :bat::aws: clean up containers :rage1::rage2::rage3::rage4:"
-    aws_ecr_cleanup
+    ecr_manager -c
   fi
 fi

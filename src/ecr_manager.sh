@@ -14,21 +14,22 @@
 
 # RTFM
 usage() {
-  echo -e ""
-  echo -e "Usage: ecr_manager [options]"
-  echo -e ""
-  echo -e "Options:"
-  echo -e "\\t-h display this message"
-  echo -e "\\t-b build and push a docker container"
-  echo -e "\\t-c perform full buildkite cleanup"
-  echo -e "\\t-d steps to run a base container build script"
-  echo -e "\\t-s display stats about your repo"
-  echo -e "\\t-t tag mode"
-  echo -e "\\t-u untag mode"
-  echo -e "\\t--build-version=<str> the build version slug for tagging"
-  echo -e "\\t--image-tags=<str>    a list of tags to apply"
-  echo -e "\\t--repo-url=<str>      the ECR docker repo URL"
-  echo -e "\\t    (defaults to \$PLATFORM-\$APPLICATION-\$RUNTIME_ENV)"
+  cat <<RTFM
+
+Usage: ecr_manager [options]
+
+Options:
+  -h display this message
+  -b build and push a docker container
+  -c perform full buildkite cleanup
+  -d steps to run a base container build script
+  -s display stats about your repo
+  -t tag mode
+  -u untag mode
+  --build-version=<str> the build version slug for tagging
+  --image-tags=<str>    a list of tags to apply
+  --repo-url=<str>      the ECR docker repo URL
+RTFM
 }
 
 # Set defaults for optional variables

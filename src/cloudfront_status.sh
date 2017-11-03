@@ -1,15 +1,17 @@
-#!/bin/bash
+  #!/bin/bash
 
 # RTFM
 usage() {
-  echo -e ""
-  echo -e "Usage: cloudfront_status [options]"
-  echo -e ""
-  echo -e "If no options are specified, outputs a human-readable cloudfront status"
-  echo -e ""
-  echo -e "Options:"
-  echo -e "\\t-h display this message"
-  echo -e "\\t--distro=<str> the cloudfront distribution identifier"
+  cat <<RTFM
+
+Usage: cloudfront_status [options]
+
+If no options are specified, outputs a human-readable cloudfront status
+
+Options:
+  -h display this message
+  --distro=<str> the cloudfront distribution identifier
+RTFM
 }
 
 main() {

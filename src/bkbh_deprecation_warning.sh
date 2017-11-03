@@ -4,15 +4,17 @@
 #
 # Really looking forward to writing a new function to safely deprecate this one
 while [ "$1" ]; do
-  echo "--- :rage1:"
-  echo "---  :rage2:"
-  echo "---   :rage3:"
-  echo "---    :rage4:"
-  echo "---     <<DEPRECATION WARNING>>"
-  echo "---     $1"
-  echo "---    :rage4:"
-  echo "---   :rage3:"
-  echo "---  :rage2:"
-  echo "--- :rage1:"
+  cat <<WARN
+--- :rage1:
+---  :rage2:
+---   :rage3:
+---    :rage4:
+---     <<DEPRECATION WARNING>>
+---     $1
+---    :rage4:
+---   :rage3:
+---  :rage2:
+--- :rage1:
+WARN
   shift
 done
