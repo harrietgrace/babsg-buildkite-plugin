@@ -2,23 +2,38 @@
 
 set -euo pipefail
 
-CASS_DIR=$(echo $BUILDKITE_PLUGINS |
-               jq -r '.[] | keys[] | match(".*cass.*").string' |
-               sed -e 's|[./#]|-|g')
 
-cd $BUILDKITE_PLUGINS_PATH/$CASS_DIR
-INSTALL_PATH=$BUILDKITE_BUILD_CHECKOUT_PATH/${BUILDKITE_PLUGIN_CASSANDRA_INSTALL_PATH:-".cass"}
+export BABSG_VERSION=$(cat VERSION)
+echo "--- :bat: Setting up BabsG version $BABSG_VERSION"
+
+# Install our scripts
+echo ":bat: installing"
+BABSG_DIR=$(echo $BUILDKITE_PLUGINS |
+               jq -r '.[] | keys[] | match(".*babsg.*").string' |
+               sed -e 's|[./#]|-|g')
+cd $BUILDKITE_PLUGINS_PATH/$BABSG_DIR
+INSTALL_PATH=$BUILDKITE_BUILD_CHECKOUT_PATH/${BUILDKITE_PLUGIN_BABSG_INSTALL_PATH:-".babsg"}
 INSTALL_PATH=$INSTALL_PATH make install
 export PATH=$INSTALL_PATH:$PATH
-
-
-export CASS_VERSION=$(cat VERSION)
-echo ":bat: Using Cass version $CASS_VERSION"
-
 cd $BUILDKITE_BUILD_CHECKOUT_PATH
 
 # required for downloading aws:kms encrypted objects from s3
-aws configure set s3.signature_version s3v4
+if [ ${BUILDKITE_PLUGIN_BABSG_S3V4_SIGS:-"true"} == "true" ]; then
+  echo ":bat: configuring s3v4 signatures :aws::s3:"
+  aws configure set s3.signature_version s3v4
+fi
 
-export BUILDKITE_SECRETS_BUCKET=cozero-$PLATFORM-buildkite-secrets
-export BUILDKITE_ARTIFACTS_BUCKET=cozero-$PLATFORM-buildkite-artifacts
+# setup DOCKER ENVs
+if [ ${BUILDKITE_PLUGIN_BABSG_USE_DOCKER:-"true"} == "true" ]; then
+  echo ":bat: configuring environment for :docker:"
+  export BABSG_ECR_REGION=${BUILDKITE_PLUGIN_BABSG_ECR_AWS_REGION:-${ECR_AWS_REGION:-"ap-southeast-2"}}
+  export BABSG_DOCKER_FQDN="${BUILDKITE_PLUGIN_BABSG_DOCKER_FQDN:-"${BUILDKITE_PLUGIN_BABSG_AWS_ACCOUNT:-$AWS_ACCOUNT}.dkr.ecr.$BABSG_ECR_REGION.amazonaws.com"}"
+  export BABSG_DOCKER_REPO_SLUG="${BUILDKITE_PLUGIN_BABSG_DOCKER_REPO_SLUG:-${DOCKER_REPO_SLUG:-$APPLICATION}}"
+  export BABSG_DOCKER_URL="$BABSG_DOCKER_FQDN/$BABSG_DOCKER_REPO_SLUG"
+fi
+
+# Create some standard ENVS
+echo ":bat: setting extra standard env variables :unicorn_face:"
+export BABSG_RUNTIME_ENV=${BUILDKITE_PLUGIN_BABSG_RUNTIME_ENV:-${RUNTIME_ENV:-${BUILDKITE_BRANCH//master/production}}}
+export BABSG_SPAM_FREQUENCY=${SPAM_FREQUENCY:-20}
+export BABSG_ELASTIC_BEANSTALK_ENV_NAME=${BUILDKITE_PLUGIN_BABSG_ELASTIC_BEANSTALK_ENV_NAME:-$(echo "$PLATFORM-$APPLICATION-$BABSG_RUNTIME_ENV" | cut -c 1-40)}

@@ -1,5 +1,5 @@
 {
-  "name": "cassandra",
+  "name": "babsg",
   "description": "A collection of bash helpers designed to streamline CI (especially on AWS)",
   "author": "@cozero",
   "public": true

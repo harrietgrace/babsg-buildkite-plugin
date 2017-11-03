@@ -28,9 +28,7 @@ usage() {
 
 # Set defaults for optional variables
 set_defaults() {
-  # these are COzero standard tags...
-  # note: you get strange results if none of these ENVs are set
-  NAME=${NAME:-${ELASTIC_BEANSTALK_ENV_NAME:-"$(echo "$PLATFORM-$APPLICATION-$RUNTIME_ENV" | cut -c 1-40)"}}
+  NAME=${NAME:-"$BABSG_ELASTIC_BEANSTALK_ENV_NAME"}
   # try hard to get a region
   REGION=${REGION:-${DEPLOY_AWS_REGION:-${AWS_REGION:-"ap-southeast-2"}}}
   TIMEOUT=${TIMEOUT:-20}

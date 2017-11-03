@@ -10,7 +10,7 @@ bats_build:
 	docker build -t bats .
 
 install:
-	@echo "--- :bat: Installing Cassandra to $(INSTALL_PATH)"
+	@echo "--- :bat: Installing BabsG to $(INSTALL_PATH)"
 	@mkdir -p $(INSTALL_PATH)
 	@for i in $(INSTALL_SCRIPTS); do \
 		DEST=$(INSTALL_PATH)/$$(echo $$i | sed -e "s/^src\///" -e "s/\.sh$$//"); \
@@ -26,5 +26,5 @@ test: bats_build
 	@for i in $(TESTS); do \
 		echo "--- Testing $$i"; \
 		docker run --rm \
-			bats $$i; \
+			bats $$i -p; \
 	done
