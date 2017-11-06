@@ -12,23 +12,16 @@ Usage: babsg command [options]
 
 Commands:
 
-  help    displays this message
-  build   builds the Dockerfile and pushes to ECR
-  rubocop runs rubocop in your docker container
+  help        displays this message
+  build       builds the Dockerfile and pushes to ECR
+  pyunittest  runs python unit tests in your docker container
+  rubocop     runs rubocop in your docker container
 
 RTFM
 }
 
 build() {
   set -euo pipefail
-
-  echo "--- :buildkite: :pipeline: generating BUILD_VERSION"
-  BUILD_VERSION=$(date -u +"%Y%m%d%H%M%S")-$BUILDKITE_COMMIT-$BUILDKITE_BUILD_NUMBER-$BUILDKITE_BUILD_ID
-
-  cat <<EOF | buildkite-agent pipeline upload
-env:
-  BUILD_VERSION: $BUILD_VERSION
-EOF
 
   echo "--- :docker: building container :construction_worker:"
   docker build -t app .
@@ -38,7 +31,7 @@ EOF
   docker push $BABSG_DOCKER_URL:$BUILD_VERSION
 }
 
-pytest() {
+pyunittest() {
   set -euo pipefail
 
   echo "--- :docker::snake: testing :hurtrealbad:"
