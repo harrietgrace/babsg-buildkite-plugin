@@ -22,6 +22,14 @@ RTFM
 build() {
   set -euo pipefail
 
+  echo "--- :buildkite: :pipeline: generating BUILD_VERSION"
+  BUILD_VERSION=$(date -u +"%Y%m%d%H%M%S")-$BUILDKITE_COMMIT-$BUILDKITE_BUILD_NUMBER-$BUILDKITE_BUILD_ID
+
+  cat <<EOF | buildkite-agent pipeline upload
+env:
+  BUILD_VERSION: $BUILD_VERSION
+EOF
+
   echo "--- :docker: building container :construction_worker:"
   docker build -t app .
 
