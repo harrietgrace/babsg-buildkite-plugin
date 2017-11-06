@@ -15,6 +15,7 @@ Commands:
   help        displays this message
   build       builds the Dockerfile and pushes to ECR
   pyunittest  runs python unit tests in your docker container
+  rspec       runs rspec in your docker container
   rubocop     runs rubocop in your docker container
 
 RTFM
@@ -27,8 +28,21 @@ build() {
   docker build -t app .
 
   echo "--- :docker: tag and push to :aws:"
-  docker tag app $BABSG_DOCKER_URL:$BUILD_VERSION
-  docker push $BABSG_DOCKER_URL:$BUILD_VERSION
+  docker tag app "$BABSG_DOCKER_URL:$BUILD_VERSION"
+  docker push "$BABSG_DOCKER_URL:$BUILD_VERSION"
+}
+
+codeclimate() {
+  set -euo pipefail
+
+  echo "--- :docker: running codeclimate"
+  docker run \
+    --interactive --tty --rm \
+    --env "CODECLIMATE_CODE=$(pwd)" \
+    --volume "$(pwd):/code" \
+    --volume /var/run/docker.sock:/var/run/docker.sock \
+    --volume /tmp/cc:/tmp/cc \
+    codeclimate/codeclimate help
 }
 
 pyunittest() {
@@ -36,7 +50,7 @@ pyunittest() {
 
   echo "--- :docker::snake: testing :hurtrealbad:"
   docker run --rm --entrypoint /bin/bash \
-    $BABSG_DOCKER_URL:$BUILD_VERSION \
+    "$BABSG_DOCKER_URL:$BUILD_VERSION" \
     -c python -m unittest discover -s ./tests -p '*_test.py'
 
   echo '👌 Tests passed! :godmode:'
@@ -47,7 +61,7 @@ rspec() {
 
   echo "--- :docker::rspec: testing :hurtrealbad:"
   docker run --rm --entrypoint /bin/bash \
-    $BABSG_DOCKER_URL:$BUILD_VERSION \
+    "$BABSG_DOCKER_URL:$BUILD_VERSION" \
     -c 'bundle exec rake spec'
 
   echo '👌 Tests passed! :godmode:'
@@ -58,7 +72,7 @@ rubocop() {
 
   echo "--- :docker::rubocop: linting :face_punch:"
   docker run --rm --entrypoint /bin/bash \
-    $BABSG_DOCKER_URL:$BUILD_VERSION \
+    "$BABSG_DOCKER_URL:$BUILD_VERSION" \
     -c 'bundle exec rubocop'
 
   echo '👌 Looks good to me! :godmode:'
@@ -80,8 +94,8 @@ shift
 # parse remaining args
 while [ "$1" != "" ]; do
   KEY=$(echo "$1" | awk -F= '{print $1}')
-  VALUE=$(echo "$1" | awk -F= '{print $2}')
-  case $KEY in
+  # VALUE=$(echo "$1" | awk -F= '{print $2}')
+  case "$KEY" in
     # catch borked options
     *)           echo "BORK BORK BORK"; usage; exit 1;;
   esac

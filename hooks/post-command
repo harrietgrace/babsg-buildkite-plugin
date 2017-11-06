@@ -3,10 +3,10 @@
 set -euo pipefail
 
 # Exit steps for failed build steps
-if [ $BUILDKITE_COMMAND_EXIT_STATUS -ne 0 ]; then
+if [ "$BUILDKITE_COMMAND_EXIT_STATUS" -ne 0 ]; then
   # Open the last group
   echo "^^^ +++"
-  if [ ${BUILDKITE_PLUGIN_BABSG_ECR_CLEANUP:-false} == "true" ]; then
+  if [ "${BUILDKITE_PLUGIN_BABSG_ECR_CLEANUP:-false}" == "true" ]; then
     echo "--- :bat::aws: clean up containers :rage1::rage2::rage3::rage4:"
     ecr_manager -c
   fi

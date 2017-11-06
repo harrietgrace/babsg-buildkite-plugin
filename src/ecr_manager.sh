@@ -42,7 +42,7 @@ set_defaults() {
   fi
   REPO_SLUG=$(echo "$REPO_URL" | cut -d "/" -f 2)
   # we need to know the docker region for our command
-  REGION=$(echo $REPO_URL | cut -d ":" -f 4)
+  REGION=$(echo "$REPO_URL" | cut -d ":" -f 4)
 }
 
 # @todo namespace prehook exports, remove support for other shit
