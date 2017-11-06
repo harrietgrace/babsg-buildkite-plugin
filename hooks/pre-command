@@ -7,7 +7,7 @@ BABSG_DIR=$(echo "$BUILDKITE_PLUGINS" |
                jq -r '.[] | keys[] | match(".*babsg.*").string' |
                sed -e 's|[./#]|-|g')
 
-BABSG_VERSION=$(cat "$BABSG_DIR"/VERSION)
+BABSG_VERSION=$(cat "$BUILDKITE_PLUGINS_PATH/$BABSG_DIR"/VERSION)
 export BABSG_VERSION
 echo "--- :bat: Setting up BabsG version $BABSG_VERSION"
 
