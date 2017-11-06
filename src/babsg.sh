@@ -13,9 +13,16 @@ Usage: babsg command [options]
 Commands:
 
   help        displays this message
+
   build       builds the Dockerfile and pushes to ECR
+
+  codeclimate <command>
+              runs a command in codeclimate/codeclimate
+
   pyunittest  runs python unit tests in your docker container
+
   rspec       runs rspec in your docker container
+
   rubocop     runs rubocop in your docker container
 
 RTFM
@@ -35,14 +42,14 @@ build() {
 codeclimate() {
   set -euo pipefail
 
-  echo "--- :docker: running codeclimate"
+  echo "--- :docker: running :codeclimate: $@"
   docker run \
     --interactive --tty --rm \
     --env "CODECLIMATE_CODE=$(pwd)" \
     --volume "$(pwd):/code" \
     --volume /var/run/docker.sock:/var/run/docker.sock \
     --volume /tmp/cc:/tmp/cc \
-    codeclimate/codeclimate help
+    codeclimate/codeclimate "$@"
 }
 
 pyunittest() {
@@ -82,7 +89,8 @@ rubocop() {
 unset COMMAND
 case $1 in
   build)              COMMAND=build;;
-  pytest)             COMMAND=pytest;;
+  codeclimate)        COMMAND=codeclimate;;
+  pyunittest)         COMMAND=pyunittest;;
   rspec)              COMMAND=rspec;;
   rubocop)            COMMAND=rubocop;;
   help | -h | --help) COMMAND=usage;;
@@ -91,15 +99,4 @@ case $1 in
 esac
 shift
 
-# parse remaining args
-while [ "$1" != "" ]; do
-  KEY=$(echo "$1" | awk -F= '{print $1}')
-  # VALUE=$(echo "$1" | awk -F= '{print $2}')
-  case "$KEY" in
-    # catch borked options
-    *)           echo "BORK BORK BORK"; usage; exit 1;;
-  esac
-  shift
-done
-
-$COMMAND
+$COMMAND "$@"
