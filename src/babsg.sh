@@ -53,7 +53,6 @@ codeclimate() {
     --env BUILDKITE \
     --env BUILDKITE_JOB_ID \
     --env BUILDKITE_BUILD_URL \
-    Add a comment to this line
     --volume "$(pwd):/code" \
     --volume /var/run/docker.sock:/var/run/docker.sock \
     --volume /tmp/cc:/tmp/cc \
@@ -64,9 +63,17 @@ pyunittest() {
   set -euo pipefail
 
   echo "--- :docker::snake: testing :hurtrealbad:"
-  docker run --rm --entrypoint /bin/bash \
+  docker run \
+    --rm \
+    --env CODECLIMATE_REPO_TOKEN \
+    --env BUILDKITE_BRANCH \
+    --env BUILDKITE_COMMIT \
+    --env BUILDKITE \
+    --env BUILDKITE_JOB_ID \
+    --env BUILDKITE_BUILD_URL \
+    --entrypoint /bin/bash \
     "$BABSG_DOCKER_URL:$BUILD_VERSION" \
-    -c python -m unittest discover -s ./tests -p '*_test.py'
+    -c "pip install codeclimate-test-reporter && python -m unittest discover -s ./tests -p '*_test.py' && codeclimate-test-reporter"
 
   echo '👌 Tests passed! :godmode:'
 }
@@ -85,7 +92,7 @@ rspec() {
   --env BUILDKITE_BUILD_URL \
   --entrypoint /bin/bash \
     "$BABSG_DOCKER_URL:$BUILD_VERSION" \
-    -c 'bundle exec rake spec'
+    -c 'bundle exec rake spec && bundle exec codeclimate-test-reporter'
 
   echo '👌 Tests passed! :godmode:'
 }
