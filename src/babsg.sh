@@ -46,6 +46,14 @@ codeclimate() {
   docker run \
     --interactive --tty --rm \
     --env "CODECLIMATE_CODE=$(pwd)" \
+    --env "CODECLIMATE_CODE=$(pwd)" \
+    --env CODECLIMATE_REPO_TOKEN \
+    --env BUILDKITE_BRANCH \
+    --env BUILDKITE_COMMIT \
+    --env BUILDKITE \
+    --env BUILDKITE_JOB_ID \
+    --env BUILDKITE_BUILD_URL \
+    Add a comment to this line
     --volume "$(pwd):/code" \
     --volume /var/run/docker.sock:/var/run/docker.sock \
     --volume /tmp/cc:/tmp/cc \
@@ -67,7 +75,15 @@ rspec() {
   set -euo pipefail
 
   echo "--- :docker::rspec: testing :hurtrealbad:"
-  docker run --rm --entrypoint /bin/bash \
+  docker run \
+  --rm \
+  --env CODECLIMATE_REPO_TOKEN \
+  --env BUILDKITE_BRANCH \
+  --env BUILDKITE_COMMIT \
+  --env BUILDKITE \
+  --env BUILDKITE_JOB_ID \
+  --env BUILDKITE_BUILD_URL \
+  --entrypoint /bin/bash \
     "$BABSG_DOCKER_URL:$BUILD_VERSION" \
     -c 'bundle exec rake spec'
 
