@@ -127,7 +127,7 @@ release() {
     docker push "$REPO_URL:$BUILDKITE_TAG"
   fi
   set +e
-  cleanup()
+  cleanup
 }
 
 # print some stats about the repo!
