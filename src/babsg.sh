@@ -67,20 +67,9 @@ pyunittest() {
   echo "--- :docker::snake: testing :hurtrealbad:"
   docker run \
     --rm \
-    --env CODECLIMATE_REPO_TOKEN \
-    --env CC_TEST_REPORTER_ID \
-    --env BUILDKITE_BRANCH \
-    --env BUILDKITE_COMMIT \
-    --env BUILDKITE \
-    --env BUILDKITE_JOB_ID \
-    --env BUILDKITE_BUILD_URL \
     --entrypoint /bin/bash \
     "$BABSG_DOCKER_URL:$BUILD_VERSION" \
-    -c "
-    curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter && chmod +x ./cc-test-reporter;
-    ./cc-test-reporter before-build;
-    python -m unittest discover -s ./tests -p '*_test.py';
-    ./cc-test-reporter before-build after-build --exit-code $?;"
+    -c "python -m unittest discover -s ./tests -p '*.py';"
 
   echo '👌 Tests passed! :godmode:'
 }
