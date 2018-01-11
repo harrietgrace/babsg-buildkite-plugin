@@ -28,6 +28,7 @@ Options:
   -u untag mode
   --build-version=<str> the build version slug for tagging
   --image-tags=<str>    a list of tags to apply
+  --python2             add a pip cache step before building
   --repo-url=<str>      the ECR docker repo URL
 RTFM
 }
@@ -58,6 +59,7 @@ main() {
     build)      build;        exit;;
     cleanup)    cleanup;      exit;;
     dockerbase) dockerbase;   exit;;
+    release)    release;      exit;;
     stats)      stats;        exit;;
     tag)        tag;          exit;;
     untag)      untag;        exit;;
@@ -67,15 +69,27 @@ main() {
 
 # build and push to ECR
 build() {
- set -e
+  set -e
 
- echo "--- :docker: building container"
- docker build -t app .
- echo "--- :docker: pushing to :aws:"
- docker tag app "$REPO_URL:$BUILD_VERSION"
- docker push "$REPO_URL:$BUILD_VERSION"
+  if [[ "$BUILD_PYTHON2" == "true" ]]; then
+    echo "--- :docker: :python: :construction_worker: Building PIP Cache";
+    mkdir pip-cache
+    docker run --rm -v $(pwd):/build \
+      -v /var/lib/buildkite-agent/.ssh/known_hosts:/root/.ssh/known_hosts:ro \
+      -v $(dirname $SSH_AUTH_SOCK):$(dirname $SSH_AUTH_SOCK) \
+      -e SSH_AUTH_SOCK=$SSH_AUTH_SOCK \
+      -w /build --entrypoint pip python:2 \
+      download -d pip-cache --process-dependency-links \
+      .
+  fi
 
- set +e
+  echo "--- :docker: building container"
+  docker build -t app .
+  echo "--- :docker: pushing to :aws:"
+  docker tag app "$REPO_URL:$BUILD_VERSION"
+  docker push "$REPO_URL:$BUILD_VERSION"
+
+  set +e
 }
 
 cleanup() {
@@ -101,6 +115,19 @@ dockerbase() {
 # enfore single mode
 esm() {
   if [[ -n "$MODE" ]]; then echo "BORK BORK BORK BORK"; exit 1; fi
+}
+
+# push containers as git tags and then clean up the current tag
+release() {
+  set -e
+  if [[ "$BUILDKITE_TAG" != "" ]]; then
+    echo "--- :ecr: releasing version $BUILDKITE_TAG :dart:"
+    docker pull "$REPO_URL:$BUILD_VERSION"
+    docker tag "$REPO_URL:$BUILD_VERSION" "$REPO_URL:$BUILDKITE_TAG"
+    docker push "$REPO_URL:$BUILDKITE_TAG"
+  fi
+  set +e
+  cleanup()
 }
 
 # print some stats about the repo!
@@ -159,12 +186,14 @@ while [ "$1" != "" ]; do
     -b)          esm; MODE=build;;
     -c)          esm; MODE=cleanup;;
     -d)          esm; MODE=dockerbase;;
+    -r)          esm; MODE=release;;
     -s)          esm; MODE=stats;;
     -t)          esm; MODE=tag;;
     -u)          esm; MODE=untag;;
     # config stuff
     --build-version)  BUILD_VERSION=$VALUE;;
     --image-tags)     IMAGE_TAGS=$VALUE;;
+    --python2)        BUILD_PYTHON2=true;;
     --repo-url)       REPO_URL=$VALUE;;
     # catch borked options
     *)           echo "BORK BORK BORK"; usage; exit 1;;
