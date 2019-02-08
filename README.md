@@ -8,8 +8,8 @@
 ```
 steps:
   - plugins:
-    github.com/cozero/babsg-buildkite-plugin#v0.0.1:
-      ecr_cleanup: true
+      - github.com/cozero/babsg-buildkite-plugin#v0.0.1:
+          ecr_cleanup: true
 ```
 
 ## Configuration
